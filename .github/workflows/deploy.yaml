@@ -63,7 +63,7 @@ jobs:
             
   deploy:
     runs-on: windows-latest
-    needs: build, Run-Azure-Login-with-OpenID-Connect-and-PowerShell
+    needs: [build, Run-Azure-Login-with-OpenID-Connect-and-PowerShell]
     #environment:
     #  name: 'production'
     #  url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
