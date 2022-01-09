@@ -4,7 +4,7 @@ permissions:
       id-token: write
       contents: read
 env:
-  AZURE_WEBAPP_NAME: MY_WEBAPP_NAME   # set this to your application's name
+  AZURE_WEBAPP_NAME: deploy-from-github-app   # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '5.0.x'             # set this to the .NET Core version to use
 
@@ -60,3 +60,24 @@ jobs:
             inlineScript: |
               Get-AzResourceGroup
             azPSVersion: "latest"
+            
+  deploy:
+    runs-on: windows-latest
+    needs: build, Run-Azure-Login-with-OpenID-Connect-and-PowerShell
+    #environment:
+    #  name: 'production'
+    #  url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: .net-app
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@0b651ed7546ecfc75024011f76944cb9b381ef1e
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
